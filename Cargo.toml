@@ -1,0 +1,96 @@
+[package]
+name = "qrtools-web"
+version = "1.0.0"
+edition = "2021"
+rust-version = "1.82"
+authors = ["VedLinuxian <github.com/vedLinuxian>"]
+description = "Production-grade QR code web dashboard built with Rust and Axum"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/vedLinuxian/qrtools-rust"
+homepage = "https://github.com/vedLinuxian/qrtools-rust"
+keywords = ["qrcode", "axum", "web", "dashboard", "encode"]
+categories = ["web-programming", "command-line-utilities"]
+
+[[bin]]
+name = "qrtools-web"
+path = "src/main.rs"
+
+[dependencies]
+# Web framework
+axum = { version = "0.8", features = ["multipart", "macros"] }
+tokio = { version = "1", features = ["full"] }
+tower = { version = "0.5", features = ["util"] }
+tower-http = { version = "0.6", features = [
+    "cors",
+    "trace",
+    "compression-gzip",
+    "compression-br",
+    "fs",
+    "limit",
+    "request-id",
+    "timeout",
+] }
+
+# QR code
+qrcode = "0.14"
+rxing = { version = "0.6", default-features = false, features = [
+    "image",
+] }
+
+# Image processing
+image = { version = "0.25", features = ["png", "jpeg", "webp"] }
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Error handling
+thiserror = "2"
+anyhow = "1"
+
+# Logging & tracing
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = [
+    "env-filter",
+    "fmt",
+    "json",
+] }
+
+# Encoding
+base64 = "0.22"
+
+# HTTP types
+http = "1"
+bytes = "1"
+
+# Async utilities
+futures = "0.3"
+
+# Configuration
+dotenvy = "0.15"
+
+# UUID for request IDs
+uuid = { version = "1", features = ["v4"] }
+
+# Time
+chrono = { version = "0.4", features = ["serde"] }
+
+# Memory cache
+moka = { version = "0.12", features = ["future"] }
+
+# Color parsing (matches qrtool feature set)
+csscolorparser = "0.6"
+
+[dev-dependencies]
+tokio-test = "0.4"
+tempfile = "3"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"
+
+[profile.dev]
+opt-level = 1

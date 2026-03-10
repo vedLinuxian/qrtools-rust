@@ -1,0 +1,9 @@
+/target
+Cargo.lock.bak
+.env
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+*.log
+dist/

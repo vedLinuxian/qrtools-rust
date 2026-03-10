@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="QR Tools — Production-grade QR code encoder and decoder dashboard" />
+  <meta name="theme-color" content="#0f1117" />
+  <title>QR Tools Dashboard</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⬛</text></svg>" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <span class="logo-icon">⬛</span>
+        <span class="logo-text">QR Tools</span>
+      </div>
+      <span class="version-badge">v1.0.0</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item active" data-tab="encode">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/><rect x="19" y="14" width="2" height="2"/><rect x="14" y="19" width="2" height="2"/><rect x="18" y="19" width="3" height="2"/></svg>
+        Encode
+      </button>
+      <button class="nav-item" data-tab="decode">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"/><circle cx="12" cy="12" r="3"/></svg>
+        Decode
+      </button>
+      <button class="nav-item" data-tab="batch">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg>
+        Batch
+      </button>
+      <button class="nav-item" data-tab="history">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        History
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="server-status" id="serverStatus">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusLabel">Connecting…</span>
+      </div>
+      <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main">
+    <!-- Top bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 class="page-title" id="pageTitle">Encode QR Code</h1>
+        <p class="page-subtitle" id="pageSubtitle">Convert text or URLs into QR codes</p>
+      </div>
+      <div class="topbar-right">
+        <div class="stats-chip"><span id="statOps">0</span> operations</div>
+        <div class="stats-chip"><span id="statHistory">0</span> cached</div>
+      </div>
+    </header>
+
+    <!-- TAB: ENCODE -->
+    <section class="tab-panel active" id="tab-encode">
+      <div class="panel-grid panel-grid--encode">
+        <!-- Controls card -->
+        <div class="card controls-card">
+          <h2 class="card-title">Configuration</h2>
+
+          <label class="form-label">Text / URL <span class="required">*</span></label>
+          <textarea
+            id="encodeData"
+            class="form-input form-textarea"
+            placeholder="https://example.com or any text…"
+            rows="4"
+            maxlength="4296"
+          ></textarea>
+          <div class="char-count"><span id="charCount">0</span> / 4296</div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Format</label>
+              <select id="encodeFormat" class="form-input form-select">
+                <option value="png">PNG (raster)</option>
+                <option value="svg">SVG (vector)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Error Correction</label>
+              <select id="encodeEcLevel" class="form-input form-select">
+                <option value="L">L — Low (7%)</option>
+                <option value="M" selected>M — Medium (15%)</option>
+                <option value="Q">Q — Quartile (25%)</option>
+                <option value="H">H — High (30%)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Module size (px)</label>
+              <input type="number" id="moduleSize" class="form-input" value="10" min="1" max="50" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Quiet zone</label>
+              <input type="number" id="quietZone" class="form-input" value="4" min="0" max="20" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Foreground</label>
+              <div class="color-input-row">
+                <input type="color" id="fgColorPicker" value="#000000" class="color-swatch" />
+                <input type="text" id="fgColorText" class="form-input" value="#000000" placeholder="#000000" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Background</label>
+              <div class="color-input-row">
+                <input type="color" id="bgColorPicker" value="#ffffff" class="color-swatch" />
+                <input type="text" id="bgColorText" class="form-input" value="#ffffff" placeholder="#ffffff" />
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn--primary btn--full" id="encodeBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/></svg>
+            Generate QR Code
+          </button>
+        </div>
+
+        <!-- Result card -->
+        <div class="card result-card">
+          <h2 class="card-title">Result</h2>
+          <div class="qr-preview" id="encodePreview">
+            <div class="qr-placeholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="placeholder-icon"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              <p>Your QR code will appear here</p>
+            </div>
+          </div>
+          <div class="result-actions" id="encodeActions" style="display:none;">
+            <button class="btn btn--secondary" id="downloadBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download
+            </button>
+            <button class="btn btn--secondary" id="copyBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy Base64
+            </button>
+          </div>
+          <div class="result-meta" id="encodeMeta"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB: DECODE -->
+    <section class="tab-panel" id="tab-decode">
+      <div class="panel-grid panel-grid--decode">
+        <!-- Upload card -->
+        <div class="card">
+          <h2 class="card-title">Input Image</h2>
+
+          <div
+            class="drop-zone"
+            id="dropZone"
+            tabindex="0"
+            role="button"
+            aria-label="Drop an image here or click to upload"
+          >
+            <div class="drop-zone-content" id="dropContent">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="drop-icon"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <p class="drop-label">Drop image here<br/><span class="drop-sub">or click to browse</span></p>
+              <p class="drop-formats">PNG, JPEG, WEBP, GIF, BMP, SVG</p>
+            </div>
+            <img id="dropPreview" class="drop-preview" style="display:none;" alt="Preview" />
+          </div>
+          <input type="file" id="fileInput" accept="image/*" style="display:none;" />
+
+          <div class="spacer-sm"></div>
+
+          <div class="or-divider"><span>or paste base64</span></div>
+          <textarea
+            id="decodeBase64"
+            class="form-input form-textarea"
+            placeholder="data:image/png;base64,iVBORw0K… or raw base64"
+            rows="4"
+          ></textarea>
+
+          <button class="btn btn--primary btn--full" id="decodeBtn" style="margin-top:1rem;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon"><path d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"/></svg>
+            Decode QR Code
+          </button>
+        </div>
+
+        <!-- Decoded result card -->
+        <div class="card">
+          <h2 class="card-title">Decoded Content</h2>
+          <div class="decode-result" id="decodeResult">
+            <div class="qr-placeholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="placeholder-icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <p>Decoded text will appear here</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB: BATCH -->
+    <section class="tab-panel" id="tab-batch">
+      <div class="card">
+        <h2 class="card-title">Batch Encode</h2>
+        <p class="card-desc">Enter one item per line. Each line will be encoded into a separate QR code.</p>
+        <textarea
+          id="batchData"
+          class="form-input form-textarea"
+          placeholder="https://example.com&#10;Hello, World!&#10;My secret text…"
+          rows="8"
+        ></textarea>
+
+        <div class="form-row" style="margin-top:1rem;">
+          <div class="form-group">
+            <label class="form-label">Format</label>
+            <select id="batchFormat" class="form-input form-select">
+              <option value="png">PNG</option>
+              <option value="svg">SVG</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Error Correction</label>
+            <select id="batchEcLevel" class="form-input form-select">
+              <option value="L">L</option>
+              <option value="M" selected>M</option>
+              <option value="Q">Q</option>
+              <option value="H">H</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="btn btn--primary" id="batchBtn" style="margin-top:1rem;">
+          Generate All
+        </button>
+        <div class="batch-results" id="batchResults"></div>
+      </div>
+    </section>
+
+    <!-- TAB: HISTORY -->
+    <section class="tab-panel" id="tab-history">
+      <div class="card">
+        <div class="card-header-row">
+          <h2 class="card-title">Operation History</h2>
+          <button class="btn btn--ghost btn--sm" id="clearHistoryBtn">Clear all</button>
+        </div>
+        <div class="history-list" id="historyList">
+          <div class="qr-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="placeholder-icon"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <p>No operations yet</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Toast notifications -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Loading overlay -->
+  <div class="loading-overlay" id="loadingOverlay" style="display:none;">
+    <div class="spinner"></div>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
