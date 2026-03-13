@@ -3,772 +3,289 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="QR Tools — Production-grade QR code web dashboard built with Rust and Axum. Encode, decode, batch generate QR codes with a beautiful dark/light UI." />
-  <meta name="keywords" content="QR code, Rust, Axum, web dashboard, encode, decode, open source" />
-  <meta name="author" content="VedLinuxian" />
-  <meta property="og:title" content="QR Tools — Rust QR Code Dashboard" />
-  <meta property="og:description" content="Production-grade QR code web dashboard. Encode, decode, batch — powered by Rust + Axum." />
-  <meta property="og:url" content="https://vedlinuxian.github.io/qrtools-rust" />
+  <title>QRTools — Advanced QR Code Platform</title>
+  <meta name="description" content="Open-source, self-hostable QR code platform. Logo overlay, 10 payload types, batch ZIP, camera decode, Prometheus metrics, WebSocket stats — all in one Rust binary." />
+  <meta property="og:title" content="QRTools — Advanced QR Code Platform" />
+  <meta property="og:description" content="Open-source Rust QR platform: logo overlay, batch ZIP, 10 payload builders, Prometheus, WebSocket live stats." />
   <meta property="og:type" content="website" />
-  <meta name="theme-color" content="#0f1117" />
-  <title>QR Tools — Rust QR Code Dashboard</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#9638;</text></svg>" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg: #0f1117;
-      --bg2: #161b22;
-      --bg3: #1c2129;
-      --border: #30363d;
-      --text: #e6edf3;
-      --muted: #8b949e;
-      --accent: #58a6ff;
-      --accent2: #79c0ff;
-      --green: #3fb950;
-      --purple: #d2a8ff;
-      --orange: #ffa657;
-    }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-      line-height: 1.7;
-      overflow-x: hidden;
-    }
-
-    a { color: var(--accent); text-decoration: none; }
-    a:hover { color: var(--accent2); text-decoration: underline; }
-
-    /* ── Nav ── */
-    nav {
-      position: sticky;
-      top: 0;
-      background: rgba(15,17,23,.85);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-      z-index: 100;
-      padding: 0 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 60px;
-    }
-    .nav-logo {
-      font-weight: 700;
-      font-size: 1.1rem;
-      display: flex;
-      align-items: center;
-      gap: .55rem;
-      color: var(--text);
-    }
-    .nav-logo svg { width: 22px; height: 22px; color: var(--accent); }
-    .nav-links { display: flex; align-items: center; gap: 1.5rem; font-size: .9rem; }
-    .nav-links a { color: var(--muted); transition: color .15s; }
-    .nav-links a:hover { color: var(--text); text-decoration: none; }
-    .nav-cta {
-      background: var(--accent);
-      color: #fff !important;
-      padding: .4rem 1rem;
-      border-radius: 6px;
-      font-weight: 600;
-      transition: background .15s !important;
-    }
-    .nav-cta:hover { background: var(--accent2) !important; text-decoration: none !important; }
-
-    /* ── Hero ── */
-    .hero {
-      text-align: center;
-      padding: 7rem 1.5rem 5rem;
-      position: relative;
-      overflow: hidden;
-    }
-    .hero::before {
-      content: "";
-      position: absolute;
-      top: -120px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 700px;
-      height: 700px;
-      background: radial-gradient(ellipse at center,
-        rgba(88,166,255,.18) 0%,
-        rgba(88,166,255,.05) 45%,
-        transparent 70%);
-      pointer-events: none;
-    }
-    .hero-badge {
-      display: inline-block;
-      background: rgba(88,166,255,.12);
-      border: 1px solid rgba(88,166,255,.3);
-      color: var(--accent);
-      font-size: .78rem;
-      font-weight: 700;
-      letter-spacing: .5px;
-      padding: .3rem .85rem;
-      border-radius: 999px;
-      margin-bottom: 1.5rem;
-      text-transform: uppercase;
-    }
-    .hero h1 {
-      font-size: clamp(2.4rem, 6vw, 4rem);
-      font-weight: 800;
-      letter-spacing: -1.5px;
-      line-height: 1.15;
-      max-width: 800px;
-      margin: 0 auto .75rem;
-    }
-    .hero h1 .gradient {
-      background: linear-gradient(135deg, var(--accent) 0%, var(--purple) 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .hero-sub {
-      color: var(--muted);
-      font-size: 1.15rem;
-      max-width: 560px;
-      margin: 0 auto 2.5rem;
-    }
-    .hero-actions {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: .45rem;
-      font-size: .95rem;
-      font-weight: 600;
-      padding: .75rem 1.6rem;
-      border-radius: 8px;
-      transition: all .15s;
-      text-decoration: none !important;
-    }
-    .btn-primary {
-      background: var(--accent);
-      color: #fff;
-    }
-    .btn-primary:hover { background: var(--accent2); color: #fff; }
-    .btn-secondary {
-      background: var(--bg2);
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-    .btn-secondary:hover { background: var(--bg3); border-color: var(--accent); }
-    .btn svg { width: 17px; height: 17px; }
-
-    /* ── QR demo visual ── */
-    .hero-qr {
-      margin: 3.5rem auto 0;
-      max-width: 720px;
-      position: relative;
-    }
-    .window {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      overflow: hidden;
-      box-shadow: 0 24px 80px rgba(0,0,0,.5);
-    }
-    .window-bar {
-      background: var(--bg3);
-      border-bottom: 1px solid var(--border);
-      padding: .7rem 1rem;
-      display: flex;
-      align-items: center;
-      gap: .5rem;
-    }
-    .dot { width: 12px; height: 12px; border-radius: 50%; }
-    .dot-r { background: #ff5f57; }
-    .dot-y { background: #febc2e; }
-    .dot-g { background: #28c840; }
-    .window-url {
-      flex: 1;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: .78rem;
-      color: var(--muted);
-      padding: .3rem .75rem;
-      margin-left: .5rem;
-      font-family: ui-monospace, monospace;
-    }
-    .window-body {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 1.5rem;
-      padding: 1.5rem;
-      align-items: center;
-    }
-    .demo-form { display: flex; flex-direction: column; gap: .75rem; }
-    .demo-input {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text);
-      font-size: .85rem;
-      padding: .55rem .8rem;
-      width: 100%;
-      font-family: inherit;
-    }
-    .demo-input:focus { outline: none; border-color: var(--accent); }
-    .demo-row { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
-    .demo-label {
-      font-size: .72rem;
-      color: var(--muted);
-      font-weight: 600;
-      margin-bottom: .25rem;
-      letter-spacing: .2px;
-    }
-    .demo-btn {
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      padding: .6rem;
-      font-size: .85rem;
-      font-weight: 600;
-      cursor: default;
-      font-family: inherit;
-    }
-    .demo-qr {
-      width: 120px;
-      flex-shrink: 0;
-    }
-    /* Minimal inline SVG QR pattern */
-    .qr-svg { width: 120px; height: 120px; }
-
-    /* ── Stats ── */
-    .stats {
-      display: flex;
-      justify-content: center;
-      gap: 3rem;
-      padding: 2rem 1.5rem;
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      flex-wrap: wrap;
-    }
-    .stat { text-align: center; }
-    .stat-number {
-      font-size: 1.9rem;
-      font-weight: 800;
-      letter-spacing: -1px;
-      background: linear-gradient(135deg, var(--accent), var(--purple));
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .stat-label { font-size: .8rem; color: var(--muted); margin-top: .1rem; }
-
-    /* ── Features ── */
-    .section {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 5rem 1.5rem;
-    }
-    .section-tag {
-      font-size: .75rem;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: .6rem;
-    }
-    .section-title {
-      font-size: clamp(1.6rem, 4vw, 2.4rem);
-      font-weight: 800;
-      letter-spacing: -1px;
-      margin-bottom: .75rem;
-    }
-    .section-sub { color: var(--muted); max-width: 560px; font-size: 1rem; margin-bottom: 3rem; }
-
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-      gap: 1.25rem;
-    }
-    .feature-card {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.5rem;
-      transition: border-color .15s, transform .15s;
-    }
-    .feature-card:hover {
-      border-color: var(--accent);
-      transform: translateY(-2px);
-    }
-    .feature-icon {
-      width: 40px; height: 40px;
-      background: var(--bg3);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      margin-bottom: 1rem;
-    }
-    .feature-title { font-weight: 700; margin-bottom: .35rem; font-size: .95rem; }
-    .feature-desc { color: var(--muted); font-size: .85rem; line-height: 1.6; }
-
-    /* ── API section ── */
-    .api-section { background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-    .api-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-      align-items: start;
-    }
-    @media (max-width: 700px) { .api-grid { grid-template-columns: 1fr; } }
-    .api-list { display: flex; flex-direction: column; gap: .75rem; }
-    .api-item {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: .85rem 1rem;
-      display: flex;
-      align-items: flex-start;
-      gap: .75rem;
-    }
-    .method {
-      font-family: ui-monospace, monospace;
-      font-size: .72rem;
-      font-weight: 700;
-      padding: .2rem .5rem;
-      border-radius: 4px;
-      flex-shrink: 0;
-      margin-top: .1rem;
-    }
-    .method-post { background: rgba(63,185,80,.15); color: var(--green); }
-    .method-get  { background: rgba(88,166,255,.15); color: var(--accent); }
-    .method-del  { background: rgba(248,81,73,.15); color: #f85149; }
-    .api-path { font-family: ui-monospace, monospace; font-size: .85rem; font-weight: 600; }
-    .api-desc { font-size: .8rem; color: var(--muted); margin-top: .2rem; }
-
-    .code-block {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.25rem 1.5rem;
-      font-family: ui-monospace, "Cascadia Code", "Source Code Pro", monospace;
-      font-size: .82rem;
-      line-height: 1.8;
-      overflow-x: auto;
-    }
-    .code-block .kw  { color: #ff7b72; }
-    .code-block .str { color: #a5d6ff; }
-    .code-block .key { color: var(--purple); }
-    .code-block .num { color: var(--orange); }
-    .code-block .cmt { color: #8b949e; font-style: italic; }
-
-    /* ── Quick start ── */
-    .qs-tabs { display: flex; gap: .5rem; margin-bottom: 1rem; }
-    .qs-tab {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: .35rem .9rem;
-      font-size: .82rem;
-      font-weight: 600;
-      cursor: pointer;
-      color: var(--muted);
-      transition: all .15s;
-    }
-    .qs-tab.active {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
-    }
-
-    /* ── Badges ── */
-    .badge-row { display: flex; gap: .6rem; flex-wrap: wrap; margin-bottom: .5rem; }
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: .35rem;
-      font-size: .75rem;
-      font-weight: 600;
-      padding: .25rem .6rem;
-      border-radius: 999px;
-      border: 1px solid;
-    }
-    .badge-blue   { background: rgba(88,166,255,.1); border-color: rgba(88,166,255,.3); color: var(--accent); }
-    .badge-green  { background: rgba(63,185,80,.1); border-color: rgba(63,185,80,.3); color: var(--green); }
-    .badge-purple { background: rgba(210,168,255,.1); border-color: rgba(210,168,255,.3); color: var(--purple); }
-    .badge-orange { background: rgba(255,166,87,.1); border-color: rgba(255,166,87,.3); color: var(--orange); }
-
-    /* ── CTA banner ── */
-    .cta-banner {
-      text-align: center;
-      padding: 5rem 1.5rem;
-      background: linear-gradient(180deg, transparent 0%, rgba(88,166,255,.06) 50%, transparent 100%);
-      border-top: 1px solid var(--border);
-    }
-    .cta-banner h2 { font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 800; letter-spacing: -1px; margin-bottom: .75rem; }
-    .cta-banner p { color: var(--muted); max-width: 480px; margin: 0 auto 2rem; }
-
-    /* ── Footer ── */
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 2rem 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-    .footer-left { font-size: .85rem; color: var(--muted); }
-    .footer-left strong { color: var(--text); }
-    .footer-links { display: flex; gap: 1.25rem; font-size: .85rem; }
-    .footer-links a { color: var(--muted); }
-    .footer-links a:hover { color: var(--text); }
-
-    @media (max-width: 640px) {
-      nav { padding: 0 1rem; }
-      .nav-links .hide-sm { display: none; }
-      .hero { padding: 4rem 1rem 3rem; }
-      .window-body { grid-template-columns: 1fr; }
-      .demo-qr { display: none; }
-      .stats { gap: 2rem; }
-      footer { flex-direction: column; text-align: center; }
-    }
+    :root{--bg:#0d1117;--surface:#161b22;--surface2:#1c2128;--border:#30363d;--text:#e6edf3;--muted:#7d8590;--accent:#58a6ff;--accent2:#3fb950;--warning:#d29922;--danger:#f85149;--purple:#a371f7;--radius:12px;}
+    *{box-sizing:border-box;margin:0;padding:0;}html{scroll-behavior:smooth;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;}
+    nav{position:sticky;top:0;z-index:100;background:rgba(13,17,23,.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 clamp(1rem,5vw,3rem);height:58px;display:flex;align-items:center;justify-content:space-between;}
+    .nav-brand{font-weight:700;font-size:1.1rem;color:var(--text);text-decoration:none;}.nav-brand span{color:var(--accent);}
+    .nav-links{display:flex;gap:1.5rem;list-style:none;}.nav-links a{color:var(--muted);text-decoration:none;font-size:.9rem;transition:color .2s;}.nav-links a:hover{color:var(--text);}
+    .nav-cta{background:var(--accent);color:#0d1117;padding:.4rem 1rem;border-radius:6px;font-weight:600;font-size:.85rem;text-decoration:none;transition:opacity .2s;}.nav-cta:hover{opacity:.85;}
+    .hero{min-height:88vh;display:grid;place-items:center;padding:4rem clamp(1rem,5vw,4rem);text-align:center;background:radial-gradient(ellipse 120% 60% at 50% 0%,rgba(88,166,255,.08) 0%,transparent 70%);}
+    .hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(88,166,255,.1);border:1px solid rgba(88,166,255,.25);color:var(--accent);border-radius:999px;padding:.3rem .9rem;font-size:.8rem;letter-spacing:.5px;margin-bottom:1.5rem;}
+    .hero h1{font-size:clamp(2.6rem,6vw,5rem);line-height:1.1;font-weight:800;letter-spacing:-1.5px;margin-bottom:1.25rem;}.hero h1 em{font-style:normal;color:var(--accent);}
+    .hero p{max-width:600px;margin:0 auto 2rem;color:var(--muted);font-size:1.15rem;line-height:1.7;}
+    .hero-actions{display:flex;flex-wrap:wrap;gap:.75rem;justify-content:center;}
+    .btn{display:inline-flex;align-items:center;gap:.45rem;padding:.65rem 1.5rem;border-radius:8px;font-weight:600;font-size:.95rem;text-decoration:none;transition:all .15s;}
+    .btn-primary{background:var(--accent);color:#0d1117;}.btn-primary:hover{background:#79c0ff;}
+    .btn-secondary{background:var(--surface2);border:1px solid var(--border);color:var(--text);}.btn-secondary:hover{border-color:var(--accent);}
+    .hero-badges{margin-top:2.5rem;display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;}.hero-badges img{height:22px;border-radius:3px;}
+    .page-section{padding:5rem clamp(1rem,6vw,5rem);max-width:1200px;margin:0 auto;}
+    .section-label{display:inline-block;text-transform:uppercase;letter-spacing:2px;font-size:.72rem;font-weight:700;color:var(--accent);margin-bottom:.75rem;}
+    h2{font-size:clamp(1.6rem,3.5vw,2.5rem);font-weight:800;letter-spacing:-.5px;margin-bottom:.75rem;}
+    .section-sub{color:var(--muted);max-width:520px;margin-bottom:2.5rem;font-size:1.05rem;}
+    .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;}
+    .feature-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;transition:border-color .2s,transform .2s;}
+    .feature-card:hover{border-color:var(--accent);transform:translateY(-2px);}
+    .feature-icon{font-size:1.8rem;margin-bottom:.75rem;}
+    .feature-card h3{font-size:1.05rem;margin-bottom:.4rem;}
+    .feature-card p{font-size:.9rem;color:var(--muted);line-height:1.55;}
+    .payload-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem;}
+    .payload-pill{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.85rem 1rem;display:flex;align-items:center;gap:.65rem;font-size:.9rem;}
+    .payload-pill .pi{font-size:1.2rem;}.payload-pill strong{display:block;font-size:.95rem;}.payload-pill span{color:var(--muted);font-size:.8rem;}
+    .api-table{width:100%;border-collapse:collapse;font-size:.9rem;margin-bottom:2rem;}
+    .api-table th{text-align:left;padding:.6rem 1rem;background:var(--surface2);color:var(--muted);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);}
+    .api-table td{padding:.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:middle;}
+    .api-table tr:last-child td{border-bottom:none;}.api-table tr:hover td{background:var(--surface2);}
+    .method{display:inline-block;font-size:.72rem;font-weight:700;padding:.15rem .55rem;border-radius:4px;min-width:50px;text-align:center;}
+    .m-get{background:rgba(63,185,80,.15);color:var(--accent2);}.m-post{background:rgba(88,166,255,.15);color:var(--accent);}.m-delete{background:rgba(248,81,73,.15);color:var(--danger);}.m-ws{background:rgba(163,113,247,.15);color:var(--purple);}
+    code{font-family:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;font-size:.85em;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:.1em .4em;color:var(--accent);}
+    pre{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;overflow-x:auto;font-size:.85rem;line-height:1.65;}
+    pre code{background:none;border:none;padding:0;font-size:inherit;color:var(--text);}
+    .c-comment{color:var(--muted);}.c-key{color:var(--accent);}.c-str{color:var(--accent2);}.c-num{color:var(--warning);}
+    .install-tabs{display:flex;gap:.5rem;margin-bottom:0;}
+    .tab-btn{padding:.5rem 1rem;border:1px solid var(--border);border-radius:8px 8px 0 0;border-bottom:none;background:var(--surface2);color:var(--muted);font-size:.88rem;cursor:pointer;}
+    .tab-btn.active{background:var(--surface);color:var(--text);}
+    .tab-pane{display:none;}.tab-pane.active{display:block;}
+    .stats-strip{display:flex;flex-wrap:wrap;gap:1rem;margin:3rem 0;}
+    .stat-card{flex:1;min-width:150px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.5rem;text-align:center;}
+    .stat-card .sn{font-size:2rem;font-weight:800;color:var(--accent);display:block;}.stat-card .sl{font-size:.8rem;color:var(--muted);margin-top:.25rem;}
+    .arch-pre{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem 2rem;overflow-x:auto;font-family:'SFMono-Regular',Consolas,monospace;font-size:.82rem;line-height:1.8;color:var(--text);}
+    .arch-pre .adir{color:var(--accent);}.arch-pre .acmt{color:var(--muted);}
+    footer{border-top:1px solid var(--border);padding:2.5rem clamp(1rem,5vw,3rem);text-align:center;color:var(--muted);font-size:.88rem;}
+    footer a{color:var(--accent);text-decoration:none;}.footer a:hover{text-decoration:underline;}
+    .sep{border:none;border-top:1px solid var(--border);margin:0 clamp(1rem,5vw,5rem);}
+    @media(max-width:640px){.nav-links{display:none;}h2{font-size:1.7rem;}}
   </style>
 </head>
 <body>
-
-<!-- ── Navigation ── -->
 <nav>
-  <div class="nav-logo">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
-      <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-      <rect x="3" y="14" width="7" height="7" rx="1"/>
-      <rect x="14" y="14" width="3" height="3"/><rect x="19" y="14" width="2" height="2"/>
-      <rect x="14" y="19" width="2" height="2"/><rect x="18" y="19" width="3" height="2"/>
-    </svg>
-    QR Tools
-  </div>
-  <div class="nav-links">
-    <a href="#features" class="hide-sm">Features</a>
-    <a href="#api" class="hide-sm">API</a>
-    <a href="#quickstart" class="hide-sm">Quick Start</a>
-    <a href="https://github.com/vedLinuxian/qrtools-rust" class="hide-sm">GitHub</a>
-    <a href="https://github.com/vedLinuxian/qrtools-rust/releases" class="nav-cta">Download</a>
-  </div>
+  <a class="nav-brand" href="#"><span>&#9638;</span> QRTools</a>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#payloads">Payloads</a></li>
+    <li><a href="#api">API</a></li>
+    <li><a href="#install">Install</a></li>
+    <li><a href="#config">Config</a></li>
+  </ul>
+  <a class="nav-cta" href="https://github.com/vedLinuxian/qrtools-rust">GitHub &#8594;</a>
 </nav>
 
-<!-- ── Hero ── -->
 <section class="hero">
-  <div class="hero-badge">✦ Open Source · MIT / Apache-2.0</div>
-  <h1>The <span class="gradient">QR Code Dashboard</span><br/>built for production</h1>
-  <p class="hero-sub">
-    Encode, decode, and batch-generate QR codes through a fast Rust + Axum REST API
-    paired with a beautiful dark/light dashboard. Zero Node.js required.
-  </p>
-  <div class="hero-actions">
-    <a href="https://github.com/vedLinuxian/qrtools-rust" class="btn btn-primary">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-      View on GitHub
-    </a>
-    <a href="https://github.com/vedLinuxian/qrtools-rust/releases" class="btn btn-secondary">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      Download Binary
-    </a>
-  </div>
-
-  <!-- Browser window mock-up -->
-  <div class="hero-qr">
-    <div class="window">
-      <div class="window-bar">
-        <div class="dot dot-r"></div>
-        <div class="dot dot-y"></div>
-        <div class="dot dot-g"></div>
-        <div class="window-url">localhost:8080 — QR Tools Dashboard</div>
-      </div>
-      <div class="window-body">
-        <div class="demo-form">
-          <div>
-            <div class="demo-label">Text / URL</div>
-            <input class="demo-input" value="https://github.com/vedLinuxian/qrtools-rust" readonly />
-          </div>
-          <div class="demo-row">
-            <div>
-              <div class="demo-label">Format</div>
-              <input class="demo-input" value="PNG" readonly />
-            </div>
-            <div>
-              <div class="demo-label">Error Correction</div>
-              <input class="demo-input" value="M — Medium (15%)" readonly />
-            </div>
-          </div>
-          <div class="demo-row">
-            <div>
-              <div class="demo-label">Foreground</div>
-              <input class="demo-input" value="#000000" readonly />
-            </div>
-            <div>
-              <div class="demo-label">Background</div>
-              <input class="demo-input" value="#ffffff" readonly />
-            </div>
-          </div>
-          <button class="demo-btn">⬛ Generate QR Code</button>
-        </div>
-        <!-- inline mini QR -->
-        <div class="demo-qr">
-          <svg class="qr-svg" viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
-            <rect width="21" height="21" fill="white"/>
-            <!-- finder TL -->
-            <rect x="0" y="0" width="7" height="7" fill="black"/>
-            <rect x="1" y="1" width="5" height="5" fill="white"/>
-            <rect x="2" y="2" width="3" height="3" fill="black"/>
-            <!-- finder TR -->
-            <rect x="14" y="0" width="7" height="7" fill="black"/>
-            <rect x="15" y="1" width="5" height="5" fill="white"/>
-            <rect x="16" y="2" width="3" height="3" fill="black"/>
-            <!-- finder BL -->
-            <rect x="0" y="14" width="7" height="7" fill="black"/>
-            <rect x="1" y="15" width="5" height="5" fill="white"/>
-            <rect x="2" y="16" width="3" height="3" fill="black"/>
-            <!-- timing -->
-            <rect x="8" y="6" width="1" height="1" fill="black"/>
-            <rect x="10" y="6" width="1" height="1" fill="black"/>
-            <rect x="12" y="6" width="1" height="1" fill="black"/>
-            <rect x="6" y="8" width="1" height="1" fill="black"/>
-            <rect x="6" y="10" width="1" height="1" fill="black"/>
-            <rect x="6" y="12" width="1" height="1" fill="black"/>
-            <!-- data modules (decorative) -->
-            <rect x="8" y="8" width="1" height="1" fill="black"/>
-            <rect x="10" y="8" width="1" height="1" fill="black"/>
-            <rect x="12" y="8" width="2" height="1" fill="black"/>
-            <rect x="9" y="9" width="1" height="1" fill="black"/>
-            <rect x="11" y="9" width="1" height="1" fill="black"/>
-            <rect x="8" y="10" width="2" height="1" fill="black"/>
-            <rect x="12" y="10" width="1" height="1" fill="black"/>
-            <rect x="9" y="11" width="1" height="1" fill="black"/>
-            <rect x="11" y="11" width="2" height="1" fill="black"/>
-            <rect x="8" y="12" width="1" height="1" fill="black"/>
-            <rect x="10" y="12" width="1" height="1" fill="black"/>
-            <rect x="14" y="8" width="1" height="1" fill="black"/>
-            <rect x="16" y="8" width="1" height="1" fill="black"/>
-            <rect x="18" y="8" width="1" height="1" fill="black"/>
-            <rect x="15" y="9" width="2" height="1" fill="black"/>
-            <rect x="14" y="10" width="1" height="1" fill="black"/>
-            <rect x="17" y="10" width="2" height="1" fill="black"/>
-            <rect x="15" y="11" width="1" height="1" fill="black"/>
-            <rect x="16" y="12" width="3" height="1" fill="black"/>
-            <rect x="8" y="14" width="2" height="1" fill="black"/>
-            <rect x="11" y="14" width="1" height="1" fill="black"/>
-            <rect x="13" y="14" width="1" height="1" fill="black"/>
-            <rect x="9" y="15" width="1" height="1" fill="black"/>
-            <rect x="12" y="15" width="2" height="1" fill="black"/>
-            <rect x="8" y="16" width="1" height="1" fill="black"/>
-            <rect x="10" y="16" width="2" height="1" fill="black"/>
-            <rect x="9" y="17" width="1" height="1" fill="black"/>
-            <rect x="11" y="17" width="1" height="1" fill="black"/>
-            <rect x="13" y="17" width="1" height="1" fill="black"/>
-            <rect x="8" y="18" width="2" height="1" fill="black"/>
-            <rect x="12" y="18" width="2" height="1" fill="black"/>
-          </svg>
-        </div>
-      </div>
+  <div>
+    <div class="hero-badge">&#9638; v2.0.0 &mdash; Production Ready</div>
+    <h1>The Advanced<br /><em>QR Code Platform</em><br />Built in Rust</h1>
+    <p>Logo overlays. 10 payload builders. Batch ZIP. Camera decode. Prometheus metrics. WebSocket live stats. All in a single self-hostable binary.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="https://github.com/vedLinuxian/qrtools-rust">&#9733; Star on GitHub</a>
+      <a class="btn btn-secondary" href="#install">Quick Start</a>
+      <a class="btn btn-secondary" href="#api">API Docs</a>
+    </div>
+    <div class="hero-badges">
+      <img src="https://img.shields.io/github/v/release/vedLinuxian/qrtools-rust?color=58a6ff&label=release" alt="Release"/>
+      <img src="https://img.shields.io/badge/license-MIT%20%2F%20Apache--2.0-blue" alt="License"/>
+      <img src="https://img.shields.io/badge/rust-1.82%2B-orange?logo=rust" alt="Rust"/>
+      <img src="https://img.shields.io/badge/docker-ready-2496ed?logo=docker" alt="Docker"/>
+      <img src="https://img.shields.io/badge/axum-0.8-success" alt="Axum"/>
     </div>
   </div>
 </section>
+<hr class="sep"/>
 
-<!-- ── Stats ── -->
-<div class="stats">
-  <div class="stat"><div class="stat-number">Rust</div><div class="stat-label">Powered by memory safety</div></div>
-  <div class="stat"><div class="stat-number">Axum 0.8</div><div class="stat-label">Latest async HTTP framework</div></div>
-  <div class="stat"><div class="stat-number">&lt;50MB</div><div class="stat-label">Docker image size</div></div>
-  <div class="stat"><div class="stat-number">6</div><div class="stat-label">API endpoints</div></div>
-  <div class="stat"><div class="stat-number">MIT</div><div class="stat-label">Open source license</div></div>
-</div>
-
-<!-- ── Features ── -->
-<section class="section" id="features">
-  <p class="section-tag">✦ What you get</p>
-  <h2 class="section-title">Everything you need<br/>for QR code workflows</h2>
-  <p class="section-sub">A full-stack Rust application — no separate frontend build step, no Node.js, no npm. One binary, one command.</p>
-
-  <div class="features-grid">
-    <div class="feature-card">
-      <div class="feature-icon">⬛</div>
-      <div class="feature-title">QR Encode (PNG &amp; SVG)</div>
-      <div class="feature-desc">Generate QR codes in PNG or vector SVG. Customize module size, quiet zone, foreground and background colors via CSS color strings.</div>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🔍</div>
-      <div class="feature-title">QR Decode</div>
-      <div class="feature-desc">Decode QR codes from uploaded images (PNG, JPEG, WEBP, GIF, BMP) or from base64 JSON payloads. Powered by the rxing multi-format scanner.</div>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">📦</div>
-      <div class="feature-title">Batch Encode</div>
-      <div class="feature-desc">Encode up to 50 items in a single request. Download all generated QR codes individually straight from the dashboard.</div>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🎨</div>
-      <div class="feature-title">Dark &amp; Light Mode</div>
-      <div class="feature-desc">The dashboard ships with a polished dark theme (default) and a full light mode — toggled with one click and persisted to localStorage.</div>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">⚡</div>
-      <div class="feature-title">Operation History</div>
-      <div class="feature-desc">In-memory LRU cache (moka) records the last 500 encode / decode operations. Browse, preview thumbnails, and clear from the UI.</div>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🛡️</div>
-      <div class="feature-title">Production Hardened</div>
-      <div class="feature-desc">Request size limits, 30 s timeout, Gzip/Brotli compression, configurable CORS, structured JSON logging, health + readiness probes.</div>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🐳</div>
-      <div class="feature-title">Docker Ready</div>
-      <div class="feature-desc">Multi-stage Dockerfile produces a minimal Debian-slim image under 50 MB. docker-compose.yml included with resource limits and healthchecks.</div>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🚀</div>
-      <div class="feature-title">GitHub Actions CI/CD</div>
-      <div class="feature-desc">Automated lint, test, cargo-audit security scan, Docker build on every push. Release workflow cross-compiles binaries for Linux, macOS, and Windows.</div>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">⚙️</div>
-      <div class="feature-title">12-Factor Config</div>
-      <div class="feature-desc">All settings via environment variables — HOST, PORT, LOG_LEVEL, JSON_LOGGING, CORS_ORIGINS, MAX_UPLOAD_BYTES, HISTORY_CAPACITY.</div>
-    </div>
+<section class="page-section" id="features">
+  <div class="section-label">Features</div>
+  <h2>Everything you need. Nothing you don&apos;t.</h2>
+  <p class="section-sub">QRTools combines features spread across dozens of tools into one zero-dependency binary.</p>
+  <div class="stats-strip">
+    <div class="stat-card"><span class="sn">14</span><div class="sl">REST endpoints</div></div>
+    <div class="stat-card"><span class="sn">10</span><div class="sl">Payload builders</div></div>
+    <div class="stat-card"><span class="sn">200</span><div class="sl">Max batch items</div></div>
+    <div class="stat-card"><span class="sn">4</span><div class="sl">Output formats</div></div>
+    <div class="stat-card"><span class="sn">&lt;50MB</span><div class="sl">Docker image</div></div>
+  </div>
+  <div class="feature-grid">
+    <div class="feature-card"><div class="feature-icon">&#128444;&#65039;</div><h3>Logo Overlay</h3><p>Embed any PNG/JPEG logo at the center of the QR code. Pass <code>logo_base64</code> in the encode request. EC is raised to H automatically.</p></div>
+    <div class="feature-card"><div class="feature-icon">&#11043;</div><h3>Module Styles</h3><p>Choose between <strong>square</strong>, <strong>dot</strong>, or <strong>rounded</strong> modules. All styles work with every output format.</p></div>
+    <div class="feature-card"><div class="feature-icon">&#127912;</div><h3>SVG Gradients</h3><p>Generate SVG QR codes with a linear gradient. Set <code>foreground</code> as start color and <code>gradient_color</code> as end color.</p></div>
+    <div class="feature-card"><div class="feature-icon">&#127991;</div><h3>Badge Labels</h3><p>Render text below the QR code using the embedded DejaVu Sans font &mdash; no external font dependencies required.</p></div>
+    <div class="feature-card"><div class="feature-icon">&#128230;</div><h3>Batch + ZIP Export</h3><p>Encode up to 200 QR codes in one request with Tokio-parallel processing. Export all as a <code>.zip</code> archive.</p></div>
+    <div class="feature-card"><div class="feature-icon">&#128247;</div><h3>Camera Decode</h3><p>Scan QR codes from device camera in the browser using WebRTC + jsQR. Works on desktop and mobile.</p></div>
+    <div class="feature-card"><div class="feature-icon">&#127760;</div><h3>URL Decode</h3><p>POST a URL and let the server fetch and decode it server-side via reqwest with a configurable size cap.</p></div>
+    <div class="feature-card"><div class="feature-icon">&#128202;</div><h3>Prometheus Metrics</h3><p><code>GET /metrics</code> exposes operation counters in Prometheus text format. Plug straight into Grafana.</p></div>
+    <div class="feature-card"><div class="feature-icon">&#9889;</div><h3>WebSocket Live Stats</h3><p>Connect to <code>ws://host/ws/stats</code> to receive JSON pushes on every operation with running totals.</p></div>
+    <div class="feature-card"><div class="feature-icon">&#128452;&#65039;</div><h3>Persistent History</h3><p>Every encode and decode stored in SQLite with thumbnails. Paginated REST history with per-item delete.</p></div>
+    <div class="feature-card"><div class="feature-icon">&#128737;&#65039;</div><h3>Rate Limiting + Auth</h3><p>Per-IP token-bucket rate limiting via governor. Optional <code>X-API-Key</code> header enforcement.</p></div>
+    <div class="feature-card"><div class="feature-icon">&#127769;</div><h3>Dark / Light SPA</h3><p>6-tab single-page dashboard. System-preference theming. Keyboard shortcuts. Persisted preferences.</p></div>
   </div>
 </section>
+<hr class="sep"/>
 
-<!-- ── API ── -->
-<div class="api-section">
-<section class="section" id="api">
-  <p class="section-tag">✦ REST API</p>
-  <h2 class="section-title">Clean JSON API,<br/>ready to integrate</h2>
-  <p class="section-sub">All endpoints return JSON. No authentication required by default — add your own middleware as needed.</p>
+<section class="page-section" id="payloads">
+  <div class="section-label">Payload Builder</div>
+  <h2>10 Structured Payload Types</h2>
+  <p class="section-sub">Stop hand-crafting WiFi strings and vCard escaping. QRTools builds properly-formatted payloads via a typed JSON API.</p>
+  <div class="payload-grid">
+    <div class="payload-pill"><span class="pi">&#128246;</span><div><strong>WiFi</strong><span>WPA / WEP / open, hidden</span></div></div>
+    <div class="payload-pill"><span class="pi">&#128100;</span><div><strong>vCard 3.0</strong><span>RFC 2426 contact card</span></div></div>
+    <div class="payload-pill"><span class="pi">&#128172;</span><div><strong>SMS</strong><span>sms: URI with body</span></div></div>
+    <div class="payload-pill"><span class="pi">&#9993;&#65039;</span><div><strong>Email</strong><span>mailto: with cc/subject/body</span></div></div>
+    <div class="payload-pill"><span class="pi">&#128205;</span><div><strong>Geolocation</strong><span>geo: lat/lon/alt</span></div></div>
+    <div class="payload-pill"><span class="pi">&#128222;</span><div><strong>Phone</strong><span>tel: URI</span></div></div>
+    <div class="payload-pill"><span class="pi">&#128279;</span><div><strong>URL</strong><span>Raw URL passthrough</span></div></div>
+    <div class="payload-pill"><span class="pi">&#128221;</span><div><strong>Text</strong><span>Any plain text</span></div></div>
+    <div class="payload-pill"><span class="pi">&#128197;</span><div><strong>Calendar Event</strong><span>RFC 5545 VCALENDAR</span></div></div>
+    <div class="payload-pill"><span class="pi">&#8383;</span><div><strong>Bitcoin</strong><span>BIP-21 bitcoin: URI</span></div></div>
+  </div>
+  <p style="margin-top:1.5rem;color:var(--muted);font-size:.9rem;">Use <code>POST /api/payload/build</code> to get the formatted string, or <code>POST /api/payload/encode</code> for immediate QR generation.</p>
+  <div style="margin-top:1.5rem">
+    <p style="font-size:.85rem;color:var(--muted);margin-bottom:.5rem">WiFi payload example:</p>
+    <pre><code><span class="c-comment">// POST /api/payload/build</span>
+{ <span class="c-key">"type"</span>: <span class="c-str">"wifi"</span>, <span class="c-key">"ssid"</span>: <span class="c-str">"HomeNet"</span>, <span class="c-key">"password"</span>: <span class="c-str">"s3cr3t"</span>, <span class="c-key">"auth"</span>: <span class="c-str">"WPA"</span>, <span class="c-key">"hidden"</span>: <span class="c-num">false</span> }
+<span class="c-comment">// Response: { "payload": "WIFI:T:WPA;S:HomeNet;P:s3cr3t;H:false;;" }</span></code></pre>
+  </div>
+</section>
+<hr class="sep"/>
 
-  <div class="api-grid">
-    <div class="api-list">
-      <div class="api-item">
-        <span class="method method-post">POST</span>
-        <div><div class="api-path">/api/encode</div><div class="api-desc">Generate PNG or SVG QR code from text/URL</div></div>
-      </div>
-      <div class="api-item">
-        <span class="method method-post">POST</span>
-        <div><div class="api-path">/api/decode/json</div><div class="api-desc">Decode QR from base64-encoded image in JSON body</div></div>
-      </div>
-      <div class="api-item">
-        <span class="method method-post">POST</span>
-        <div><div class="api-path">/api/decode/upload</div><div class="api-desc">Decode QR from multipart image file upload</div></div>
-      </div>
-      <div class="api-item">
-        <span class="method method-get">GET</span>
-        <div><div class="api-path">/api/history</div><div class="api-desc">List last 100 encode / decode operations</div></div>
-      </div>
-      <div class="api-item">
-        <span class="method method-del">DEL</span>
-        <div><div class="api-path">/api/history</div><div class="api-desc">Clear all cached history entries</div></div>
-      </div>
-      <div class="api-item">
-        <span class="method method-get">GET</span>
-        <div><div class="api-path">/api/health/ready</div><div class="api-desc">Readiness probe with ops counter &amp; cache stats</div></div>
-      </div>
-    </div>
-
-    <div class="code-block"><span class="cmt">// POST /api/encode</span>
+<section class="page-section" id="api">
+  <div class="section-label">API Reference</div>
+  <h2>14 REST Endpoints</h2>
+  <p class="section-sub">All endpoints under <code>/api/</code>. Base URL: <code>http://localhost:8080</code></p>
+  <table class="api-table">
+    <thead><tr><th>Method</th><th>Path</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><span class="method m-post">POST</span></td><td><code>/api/encode</code></td><td>Generate QR &mdash; PNG, JPEG, WebP, SVG with logo/badge/gradient options</td></tr>
+      <tr><td><span class="method m-post">POST</span></td><td><code>/api/decode/json</code></td><td>Decode base64-encoded image</td></tr>
+      <tr><td><span class="method m-post">POST</span></td><td><code>/api/decode/upload</code></td><td>Decode multipart file upload</td></tr>
+      <tr><td><span class="method m-post">POST</span></td><td><code>/api/decode/url</code></td><td>Server-side fetch URL &amp; decode</td></tr>
+      <tr><td><span class="method m-post">POST</span></td><td><code>/api/batch/encode</code></td><td>Encode up to 200 items concurrently, returns JSON array</td></tr>
+      <tr><td><span class="method m-post">POST</span></td><td><code>/api/batch/export</code></td><td>Same body as batch, returns <code>application/zip</code></td></tr>
+      <tr><td><span class="method m-post">POST</span></td><td><code>/api/payload/build</code></td><td>Build formatted payload string from typed JSON</td></tr>
+      <tr><td><span class="method m-post">POST</span></td><td><code>/api/payload/encode</code></td><td>Build payload + generate QR in one call</td></tr>
+      <tr><td><span class="method m-get">GET</span></td><td><code>/api/history</code></td><td>Paginated history with thumbnails (<code>?limit=&amp;offset=</code>)</td></tr>
+      <tr><td><span class="method m-get">GET</span></td><td><code>/api/history/{id}</code></td><td>Single history entry by UUID</td></tr>
+      <tr><td><span class="method m-delete">DELETE</span></td><td><code>/api/history/{id}</code></td><td>Delete one history entry</td></tr>
+      <tr><td><span class="method m-get">GET</span></td><td><code>/api/health</code></td><td>Liveness &mdash; <code>{ status, version, timestamp }</code></td></tr>
+      <tr><td><span class="method m-get">GET</span></td><td><code>/api/health/ready</code></td><td>Readiness &mdash; includes ops_total, history_entries</td></tr>
+      <tr><td><span class="method m-get">GET</span></td><td><code>/metrics</code></td><td>Prometheus text format counters</td></tr>
+      <tr><td><span class="method m-ws">WS</span></td><td><code>/ws/stats</code></td><td>Push ServerStats JSON on every operation</td></tr>
+    </tbody>
+  </table>
+  <h3 style="margin-bottom:.75rem;font-size:1.1rem">Encode Request/Response</h3>
+  <pre><code><span class="c-comment">// POST /api/encode</span>
 {
-  <span class="key">"data"</span>: <span class="str">"https://example.com"</span>,
-  <span class="key">"format"</span>: <span class="str">"png"</span>,       <span class="cmt">// or "svg"</span>
-  <span class="key">"ec_level"</span>: <span class="str">"M"</span>,    <span class="cmt">// L / M / Q / H</span>
-  <span class="key">"module_size"</span>: <span class="num">10</span>,
-  <span class="key">"quiet_zone"</span>: <span class="num">4</span>,
-  <span class="key">"foreground"</span>: <span class="str">"#000000"</span>,
-  <span class="key">"background"</span>: <span class="str">"#ffffff"</span>
+  <span class="c-key">"data"</span>: <span class="c-str">"https://example.com"</span>,
+  <span class="c-key">"format"</span>: <span class="c-str">"png"</span>,              <span class="c-comment">// "png" | "jpeg" | "webp" | "svg"</span>
+  <span class="c-key">"ec_level"</span>: <span class="c-str">"M"</span>,             <span class="c-comment">// "L" | "M" | "Q" | "H"</span>
+  <span class="c-key">"module_style"</span>: <span class="c-str">"dot"</span>,        <span class="c-comment">// "square" | "dot" | "rounded"</span>
+  <span class="c-key">"logo_base64"</span>: <span class="c-str">"..."</span>,         <span class="c-comment">// PNG/JPEG logo</span>
+  <span class="c-key">"gradient_color"</span>: <span class="c-str">"#2563eb"</span>,  <span class="c-comment">// SVG only</span>
+  <span class="c-key">"badge_label"</span>: <span class="c-str">"Scan Me!"</span>
 }
+<span class="c-comment">// Response: { "id", "mime_type", "data" (base64), "width", "height", "thumbnail", "timestamp" }</span></code></pre>
+</section>
+<hr class="sep"/>
 
-<span class="cmt">// Response</span>
-{
-  <span class="key">"id"</span>: <span class="str">"3fa85f64-..."</span>,
-  <span class="key">"mime_type"</span>: <span class="str">"image/png"</span>,
-  <span class="key">"data"</span>: <span class="str">"iVBORw0KGgo..."</span>, <span class="cmt">// base64</span>
-  <span class="key">"width"</span>: <span class="num">290</span>,
-  <span class="key">"height"</span>: <span class="num">290</span>,
-  <span class="key">"timestamp"</span>: <span class="str">"2026-03-10T..."</span>
-}</div>
+<section class="page-section" id="install">
+  <div class="section-label">Install</div>
+  <h2>Up in under 60 seconds.</h2>
+  <p class="section-sub">Three ways to run QRTools.</p>
+  <div class="install-tabs">
+    <button class="tab-btn active" onclick="switchTab(event,'docker')">Docker</button>
+    <button class="tab-btn" onclick="switchTab(event,'source')">From Source</button>
+    <button class="tab-btn" onclick="switchTab(event,'binary')">Pre-built Binary</button>
+  </div>
+  <div id="tab-docker" class="tab-pane active">
+    <pre><code>git clone https://github.com/vedLinuxian/qrtools-rust.git
+cd qrtools-rust
+docker compose up -d
+<span class="c-comment"># -&gt; http://localhost:8080</span></code></pre>
+  </div>
+  <div id="tab-source" class="tab-pane">
+    <pre><code><span class="c-comment"># Requires: Rust 1.82+, libsqlite3-dev</span>
+git clone https://github.com/vedLinuxian/qrtools-rust.git
+cd qrtools-rust
+cargo run --release
+<span class="c-comment"># -&gt; http://localhost:8080</span></code></pre>
+  </div>
+  <div id="tab-binary" class="tab-pane">
+    <pre><code>curl -LO https://github.com/vedLinuxian/qrtools-rust/releases/latest/download/qrtools-linux-x86_64
+chmod +x qrtools-linux-x86_64
+./qrtools-linux-x86_64</code></pre>
   </div>
 </section>
-</div>
+<hr class="sep"/>
 
-<!-- ── Quick Start ── -->
-<section class="section" id="quickstart">
-  <p class="section-tag">✦ Run it</p>
-  <h2 class="section-title">Up in 30 seconds</h2>
-  <p class="section-sub">Choose your preferred method — from source or Docker.</p>
+<section class="page-section" id="config">
+  <div class="section-label">Configuration</div>
+  <h2>Env-based. No YAML required.</h2>
+  <p class="section-sub">Drop a <code>.env</code> file in the root or pass variables to Docker.</p>
+  <pre><code><span class="c-key">HOST</span>=0.0.0.0
+<span class="c-key">PORT</span>=8080
+<span class="c-key">API_KEY</span>=                   <span class="c-comment"># blank = disabled</span>
+<span class="c-key">RATE_LIMIT_RPM</span>=120         <span class="c-comment"># per-IP; 0 = disabled</span>
+<span class="c-key">DB_PATH</span>=qrtools.db
+<span class="c-key">METRICS_ENABLED</span>=true
+<span class="c-key">MAX_UPLOAD_BYTES</span>=10485760  <span class="c-comment"># 10 MB</span>
+<span class="c-key">MAX_REMOTE_FETCH_BYTES</span>=5242880</code></pre>
+</section>
+<hr class="sep"/>
 
-  <div class="badge-row">
-    <span class="badge badge-blue">Rust 1.82+</span>
-    <span class="badge badge-green">Docker optional</span>
-    <span class="badge badge-purple">Linux · macOS · Windows</span>
-    <span class="badge badge-orange">MIT / Apache-2.0</span>
-  </div>
-
-  <div style="margin-top:1.5rem; display:flex; flex-direction:column; gap:1.25rem;">
-    <div>
-      <div style="font-weight:700; margin-bottom:.5rem;">From source</div>
-      <div class="code-block"><span class="cmt"># Clone & run</span>
-<span class="kw">git</span> clone https://github.com/vedLinuxian/qrtools-rust.git
-<span class="kw">cd</span> qrtools-rust
-<span class="kw">cp</span> .env.example .env
-<span class="kw">cargo</span> run --release
-
-<span class="cmt"># Open http://localhost:8080</span></div>
-    </div>
-    <div>
-      <div style="font-weight:700; margin-bottom:.5rem;">Docker</div>
-      <div class="code-block"><span class="kw">docker</span> compose up -d
-<span class="cmt"># Dashboard → http://localhost:8080</span></div>
-    </div>
-    <div>
-      <div style="font-weight:700; margin-bottom:.5rem;">Quick API test</div>
-      <div class="code-block"><span class="kw">curl</span> -s -X POST http://localhost:8080/api/encode \
-  -H <span class="str">'Content-Type: application/json'</span> \
-  -d <span class="str">'{"data":"Hello QR Tools!"}'</span> \
-  | <span class="kw">jq</span> .mime_type</div>
-    </div>
+<section class="page-section" id="arch">
+  <div class="section-label">Architecture</div>
+  <h2>Clean layered structure.</h2>
+  <p class="section-sub">Services, API handlers, middleware, and static assets cleanly separated.</p>
+  <div class="arch-pre">
+<span class="adir">src/</span>
+&#9500;&#9472;&#9472; <span class="adir">main.rs</span>              <span class="acmt">Axum server, routing, SQLite init, graceful shutdown</span>
+&#9500;&#9472;&#9472; <span class="adir">config.rs</span>            <span class="acmt">Env vars to Config struct</span>
+&#9500;&#9472;&#9472; <span class="adir">error.rs</span>             <span class="acmt">AppError -&gt; HTTP response</span>
+&#9500;&#9472;&#9472; <span class="adir">state.rs</span>             <span class="acmt">AppState: pool, moka cache, broadcast channel</span>
+&#9500;&#9472;&#9472; <span class="adir">services/</span>
+&#9474;   &#9500;&#9472;&#9472; <span class="adir">qr_engine.rs</span>     <span class="acmt">Core QR: formats, styles, logo, badge, SVG gradient</span>
+&#9474;   &#9492;&#9472;&#9472; <span class="adir">payload_builder.rs</span> <span class="acmt">10 structured payload formatters</span>
+&#9500;&#9472;&#9472; <span class="adir">api/</span>
+&#9474;   &#9500;&#9472;&#9472; <span class="adir">encode.rs</span>        <span class="acmt">POST /api/encode</span>
+&#9474;   &#9500;&#9472;&#9472; <span class="adir">decode.rs</span>        <span class="acmt">POST /api/decode/{json,upload,url}</span>
+&#9474;   &#9500;&#9472;&#9472; <span class="adir">batch.rs</span>         <span class="acmt">POST /api/batch/{encode,export}</span>
+&#9474;   &#9500;&#9472;&#9472; <span class="adir">payload.rs</span>       <span class="acmt">POST /api/payload/{build,encode}</span>
+&#9474;   &#9500;&#9472;&#9472; <span class="adir">history.rs</span>       <span class="acmt">GET/DELETE /api/history</span>
+&#9474;   &#9500;&#9472;&#9472; <span class="adir">health.rs</span>        <span class="acmt">GET /api/health{,/ready}</span>
+&#9474;   &#9500;&#9472;&#9472; <span class="adir">ws.rs</span>            <span class="acmt">WS /ws/stats via tokio broadcast</span>
+&#9474;   &#9492;&#9472;&#9472; <span class="adir">metrics_handler.rs</span> <span class="acmt">GET /metrics Prometheus exporter</span>
+&#9492;&#9472;&#9472; <span class="adir">middleware/</span>
+    &#9500;&#9472;&#9472; <span class="adir">rate_limit.rs</span>    <span class="acmt">Per-IP token bucket (governor)</span>
+    &#9492;&#9472;&#9472; <span class="adir">auth.rs</span>          <span class="acmt">X-API-Key enforcement</span>
   </div>
 </section>
 
-<!-- ── CTA ── -->
-<div class="cta-banner">
-  <h2>Ready to encode your first QR?</h2>
-  <p>Star the project on GitHub, clone it, and have the dashboard running in under a minute.</p>
-  <div class="hero-actions">
-    <a href="https://github.com/vedLinuxian/qrtools-rust" class="btn btn-primary">
-      <svg viewBox="0 0 24 24" fill="currentColor" style="width:17px;height:17px;"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-      Star on GitHub
-    </a>
-    <a href="https://github.com/vedLinuxian/qrtools-rust/releases" class="btn btn-secondary">Download Binary</a>
-  </div>
-</div>
-
-<!-- ── Footer ── -->
 <footer>
-  <div class="footer-left">
-    <strong>QR Tools</strong> · Built with ♥ in Rust by
-    <a href="https://github.com/vedLinuxian">@vedLinuxian</a> · 2026
-  </div>
-  <div class="footer-links">
+  <p>
+    <strong>&#9638; QRTools</strong> &mdash; Released under
+    <a href="https://github.com/vedLinuxian/qrtools-rust/blob/main/LICENSE-MIT">MIT</a> /
+    <a href="https://github.com/vedLinuxian/qrtools-rust/blob/main/LICENSE-APACHE">Apache 2.0</a>
+    &nbsp;&middot;&nbsp;
     <a href="https://github.com/vedLinuxian/qrtools-rust">GitHub</a>
+    &nbsp;&middot;&nbsp;
     <a href="https://github.com/vedLinuxian/qrtools-rust/releases">Releases</a>
-    <a href="https://github.com/vedLinuxian/qrtools-rust/issues">Issues</a>
-    <a href="https://github.com/sorairolake/qrtool">Inspired by qrtool</a>
-  </div>
+    &nbsp;&middot;&nbsp;
+    <a href="https://github.com/vedLinuxian/qrtools-rust/blob/main/CHANGELOG.md">Changelog</a>
+  </p>
+  <p style="margin-top:.5rem;font-size:.8rem">Made with heart and Rust</p>
 </footer>
 
+<script>
+function switchTab(e,name){
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  e.target.classList.add('active');
+}
+</script>
 </body>
 </html>
