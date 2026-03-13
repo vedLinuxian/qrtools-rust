@@ -7,3 +7,4 @@ Cargo.lock.bak
 Thumbs.db
 *.log
 dist/
+*.db

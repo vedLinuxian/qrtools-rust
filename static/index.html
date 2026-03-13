@@ -1,278 +1,350 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="QR Tools — Production-grade QR code encoder and decoder dashboard" />
-  <meta name="theme-color" content="#0f1117" />
-  <title>QR Tools Dashboard</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⬛</text></svg>" />
-  <link rel="stylesheet" href="/css/style.css" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>QRTools — Advanced QR Platform</title>
+<link rel="stylesheet" href="/css/style.css"/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%2358a6ff'/><rect x='6' y='6' width='8' height='8' rx='1' fill='white'/><rect x='18' y='6' width='8' height='8' rx='1' fill='white'/><rect x='6' y='18' width='8' height='8' rx='1' fill='white'/><rect x='18' y='18' width='4' height='4' fill='white'/><rect x='24' y='18' width='2' height='2' fill='white'/><rect x='22' y='22' width='4' height='4' fill='white'/></svg>"/>
 </head>
 <body>
-  <!-- Sidebar -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <div class="logo">
-        <span class="logo-icon">⬛</span>
-        <span class="logo-text">QR Tools</span>
-      </div>
-      <span class="version-badge">v1.0.0</span>
+<!-- ── Sidebar ─────────────────────────────────────────────────────────── -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar__logo">
+    <svg width="28" height="28" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="var(--accent)"/><rect x="6" y="6" width="8" height="8" rx="1" fill="white"/><rect x="18" y="6" width="8" height="8" rx="1" fill="white"/><rect x="6" y="18" width="8" height="8" rx="1" fill="white"/><rect x="18" y="18" width="4" height="4" fill="white"/><rect x="24" y="18" width="2" height="2" fill="white"/><rect x="22" y="22" width="4" height="4" fill="white"/></svg>
+    <span>QRTools</span>
+  </div>
+  <nav class="sidebar__nav">
+    <button class="nav-item active" data-tab="encode"     title="Encode (E)">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 3h6v6H3V3zm1 1v4h4V4H4zM3 11h6v6H3v-6zm1 1v4h4v-4H4zM11 3h6v6h-6V3zm1 1v4h4V4h-4zM13 13h2v2h-2v-2zM11 11h2v2h-2v-2zM15 15h2v2h-2v-2zM11 15h2v2h-2v-2zM15 11h2v2h-2v-2z"/></svg>
+      <span>Encode</span>
+    </button>
+    <button class="nav-item" data-tab="decode"     title="Decode (D)">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 4h4v4H4V4zm6 0h4v2h-2v2h2v2h-4V4zm4 6h2v2h-2v-2zm-6 4h2v2H8v-2zm4 0h2v2h-2v-2zm-4-2h2v2H8v-2zm-4-2h4v6H4v-6zm1 1v4h2v-4H5zm7-1h2v2h-2v-2z"/></svg>
+      <span>Decode</span>
+    </button>
+    <button class="nav-item" data-tab="batch"      title="Batch (B)">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 4h16v2H2V4zm0 5h16v2H2V9zm0 5h16v2H2v-2z"/></svg>
+      <span>Batch</span>
+    </button>
+    <button class="nav-item" data-tab="payload"    title="Payload Builder (P)">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm0 14a6 6 0 110-12 6 6 0 010 12zm1-9H9v2H7v2h2v2h2v-2h2v-2h-2V7z"/></svg>
+      <span>Payloads</span>
+    </button>
+    <button class="nav-item" data-tab="history"    title="History (H)">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm0 14a6 6 0 110-12 6 6 0 010 12zM9 6h2v5l3.5 2-1 1.73L9 12.5V6z"/></svg>
+      <span>History</span>
+    </button>
+  </nav>
+  <div class="sidebar__footer">
+    <div class="status-row">
+      <span class="status-dot" id="statusDot"></span>
+      <span class="status-txt" id="statusTxt">Connecting…</span>
     </div>
-
-    <nav class="sidebar-nav">
-      <button class="nav-item active" data-tab="encode">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/><rect x="19" y="14" width="2" height="2"/><rect x="14" y="19" width="2" height="2"/><rect x="18" y="19" width="3" height="2"/></svg>
-        Encode
-      </button>
-      <button class="nav-item" data-tab="decode">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"/><circle cx="12" cy="12" r="3"/></svg>
-        Decode
-      </button>
-      <button class="nav-item" data-tab="batch">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg>
-        Batch
-      </button>
-      <button class="nav-item" data-tab="history">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        History
-      </button>
-    </nav>
-
-    <div class="sidebar-footer">
-      <div class="server-status" id="serverStatus">
-        <span class="status-dot" id="statusDot"></span>
-        <span id="statusLabel">Connecting…</span>
-      </div>
-      <button class="theme-toggle" id="themeToggle" title="Toggle theme">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-      </button>
+    <div class="ws-row">
+      <span class="ws-dot" id="wsDot" title="Live stats WebSocket"></span>
+      <span class="ws-txt" id="wsTxt">WS —</span>
     </div>
-  </aside>
+    <button class="theme-btn" id="themeBtn" title="Toggle theme (T)">
+      <svg id="themeIcon" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a1 1 0 011 1v1a1 1 0 01-2 0V3a1 1 0 011-1zm4.243 2.757a1 1 0 011.414 0l.707.707a1 1 0 01-1.414 1.414l-.707-.707a1 1 0 010-1.414zM17 9h1a1 1 0 010 2h-1a1 1 0 010-2zM5.757 14.243a1 1 0 010 1.414l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 0zM10 15a1 1 0 011 1v1a1 1 0 01-2 0v-1a1 1 0 011-1zm-4.243-2.757a1 1 0 011.414 1.414l-.707.707a1 1 0 01-1.414-1.414l.707-.707zM3 9H2a1 1 0 000 2h1a1 1 0 000-2zM6.464 5.172a1 1 0 010-1.414l.707-.707A1 1 0 016.464 5.172zM10 6a4 4 0 100 8 4 4 0 000-8z"/></svg>
+    </button>
+    <a class="metrics-link" href="/metrics" target="_blank" title="Prometheus metrics">📊</a>
+  </div>
+</aside>
 
-  <!-- Main content -->
-  <main class="main">
-    <!-- Top bar -->
-    <header class="topbar">
-      <div class="topbar-left">
-        <h1 class="page-title" id="pageTitle">Encode QR Code</h1>
-        <p class="page-subtitle" id="pageSubtitle">Convert text or URLs into QR codes</p>
-      </div>
-      <div class="topbar-right">
-        <div class="stats-chip"><span id="statOps">0</span> operations</div>
-        <div class="stats-chip"><span id="statHistory">0</span> cached</div>
-      </div>
-    </header>
+<!-- ── Main ───────────────────────────────────────────────────────────── -->
+<main class="main" id="main">
+  <header class="topbar">
+    <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 5h14v1H3V5zm0 4h14v1H3V9zm0 4h14v1H3v-1z"/></svg>
+    </button>
+    <h1 class="topbar__title" id="pageTitle">Encode</h1>
+    <div class="topbar__chips">
+      <span class="chip chip--blue"  id="chipOps">0 ops</span>
+      <span class="chip chip--green" id="chipHist">0 entries</span>
+    </div>
+  </header>
 
-    <!-- TAB: ENCODE -->
-    <section class="tab-panel active" id="tab-encode">
-      <div class="panel-grid panel-grid--encode">
-        <!-- Controls card -->
-        <div class="card controls-card">
-          <h2 class="card-title">Configuration</h2>
-
-          <label class="form-label">Text / URL <span class="required">*</span></label>
-          <textarea
-            id="encodeData"
-            class="form-input form-textarea"
-            placeholder="https://example.com or any text…"
-            rows="4"
-            maxlength="4296"
-          ></textarea>
-          <div class="char-count"><span id="charCount">0</span> / 4296</div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Format</label>
-              <select id="encodeFormat" class="form-input form-select">
-                <option value="png">PNG (raster)</option>
-                <option value="svg">SVG (vector)</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Error Correction</label>
-              <select id="encodeEcLevel" class="form-input form-select">
-                <option value="L">L — Low (7%)</option>
-                <option value="M" selected>M — Medium (15%)</option>
-                <option value="Q">Q — Quartile (25%)</option>
-                <option value="H">H — High (30%)</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Module size (px)</label>
-              <input type="number" id="moduleSize" class="form-input" value="10" min="1" max="50" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Quiet zone</label>
-              <input type="number" id="quietZone" class="form-input" value="4" min="0" max="20" />
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Foreground</label>
-              <div class="color-input-row">
-                <input type="color" id="fgColorPicker" value="#000000" class="color-swatch" />
-                <input type="text" id="fgColorText" class="form-input" value="#000000" placeholder="#000000" />
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Background</label>
-              <div class="color-input-row">
-                <input type="color" id="bgColorPicker" value="#ffffff" class="color-swatch" />
-                <input type="text" id="bgColorText" class="form-input" value="#ffffff" placeholder="#ffffff" />
-              </div>
-            </div>
-          </div>
-
-          <button class="btn btn--primary btn--full" id="encodeBtn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/></svg>
-            Generate QR Code
-          </button>
+  <!-- ── Encode ─────────────────────────────────────────────────────── -->
+  <section class="tab-panel active" id="tab-encode">
+    <div class="panel-grid encode-grid">
+      <!-- Left: controls -->
+      <div class="card encode-controls">
+        <div class="field">
+          <label for="encodeData">Data / URL
+            <span class="char-counter" id="encodeCounter">0 / 7089</span>
+          </label>
+          <textarea id="encodeData" rows="4" placeholder="https://example.com or any text…" maxlength="7089"></textarea>
         </div>
-
-        <!-- Result card -->
-        <div class="card result-card">
-          <h2 class="card-title">Result</h2>
-          <div class="qr-preview" id="encodePreview">
-            <div class="qr-placeholder">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="placeholder-icon"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-              <p>Your QR code will appear here</p>
-            </div>
-          </div>
-          <div class="result-actions" id="encodeActions" style="display:none;">
-            <button class="btn btn--secondary" id="downloadBtn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              Download
-            </button>
-            <button class="btn btn--secondary" id="copyBtn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-              Copy Base64
-            </button>
-          </div>
-          <div class="result-meta" id="encodeMeta"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- TAB: DECODE -->
-    <section class="tab-panel" id="tab-decode">
-      <div class="panel-grid panel-grid--decode">
-        <!-- Upload card -->
-        <div class="card">
-          <h2 class="card-title">Input Image</h2>
-
-          <div
-            class="drop-zone"
-            id="dropZone"
-            tabindex="0"
-            role="button"
-            aria-label="Drop an image here or click to upload"
-          >
-            <div class="drop-zone-content" id="dropContent">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="drop-icon"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              <p class="drop-label">Drop image here<br/><span class="drop-sub">or click to browse</span></p>
-              <p class="drop-formats">PNG, JPEG, WEBP, GIF, BMP, SVG</p>
-            </div>
-            <img id="dropPreview" class="drop-preview" style="display:none;" alt="Preview" />
-          </div>
-          <input type="file" id="fileInput" accept="image/*" style="display:none;" />
-
-          <div class="spacer-sm"></div>
-
-          <div class="or-divider"><span>or paste base64</span></div>
-          <textarea
-            id="decodeBase64"
-            class="form-input form-textarea"
-            placeholder="data:image/png;base64,iVBORw0K… or raw base64"
-            rows="4"
-          ></textarea>
-
-          <button class="btn btn--primary btn--full" id="decodeBtn" style="margin-top:1rem;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon"><path d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"/></svg>
-            Decode QR Code
-          </button>
-        </div>
-
-        <!-- Decoded result card -->
-        <div class="card">
-          <h2 class="card-title">Decoded Content</h2>
-          <div class="decode-result" id="decodeResult">
-            <div class="qr-placeholder">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="placeholder-icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <p>Decoded text will appear here</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- TAB: BATCH -->
-    <section class="tab-panel" id="tab-batch">
-      <div class="card">
-        <h2 class="card-title">Batch Encode</h2>
-        <p class="card-desc">Enter one item per line. Each line will be encoded into a separate QR code.</p>
-        <textarea
-          id="batchData"
-          class="form-input form-textarea"
-          placeholder="https://example.com&#10;Hello, World!&#10;My secret text…"
-          rows="8"
-        ></textarea>
-
-        <div class="form-row" style="margin-top:1rem;">
-          <div class="form-group">
-            <label class="form-label">Format</label>
-            <select id="batchFormat" class="form-input form-select">
-              <option value="png">PNG</option>
+        <div class="row-2">
+          <div class="field">
+            <label for="encodeFormat">Format</label>
+            <select id="encodeFormat">
+              <option value="png" selected>PNG</option>
+              <option value="jpeg">JPEG</option>
+              <option value="webp">WebP</option>
               <option value="svg">SVG</option>
             </select>
           </div>
-          <div class="form-group">
-            <label class="form-label">Error Correction</label>
-            <select id="batchEcLevel" class="form-input form-select">
+          <div class="field">
+            <label for="encodeEC">Error Correction</label>
+            <select id="encodeEC">
+              <option value="L">L — 7%</option>
+              <option value="M" selected>M — 15%</option>
+              <option value="Q">Q — 25%</option>
+              <option value="H">H — 30% (for logos)</option>
+            </select>
+          </div>
+        </div>
+        <div class="row-3">
+          <div class="field">
+            <label for="encodeStyle">Module Style</label>
+            <select id="encodeStyle">
+              <option value="square" selected>■ Square</option>
+              <option value="dot">● Dot</option>
+              <option value="rounded">▣ Rounded</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="encodeModSize">Module px</label>
+            <input type="number" id="encodeModSize" value="10" min="2" max="50"/>
+          </div>
+          <div class="field">
+            <label for="encodeQZ">Quiet Zone</label>
+            <input type="number" id="encodeQZ" value="4" min="0" max="10"/>
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="field color-field">
+            <label for="encodeFgText">Foreground</label>
+            <div class="color-row">
+              <input type="color" id="encodeFgPicker" value="#000000"/>
+              <input type="text"  id="encodeFgText"   value="#000000" class="color-text"/>
+            </div>
+          </div>
+          <div class="field color-field">
+            <label for="encodeBgText">Background</label>
+            <div class="color-row">
+              <input type="color" id="encodeBgPicker" value="#ffffff"/>
+              <input type="text"  id="encodeBgText"   value="#ffffff" class="color-text"/>
+            </div>
+          </div>
+        </div>
+        <!-- Gradient -->
+        <div class="field">
+          <label for="encodeGradient">Gradient (SVG only, optional)</label>
+          <div class="color-row">
+            <input type="color" id="encodeGradPicker" value="#2563eb"/>
+            <input type="text"  id="encodeGradText"   value="" class="color-text" placeholder="leave blank to disable"/>
+          </div>
+        </div>
+        <!-- Logo -->
+        <div class="field">
+          <label for="encodeLogo">Logo overlay (PNG/JPEG, EC=H recommended)</label>
+          <div class="logo-row">
+            <input type="file" id="encodeLogo" accept="image/*" class="file-input"/>
+            <span id="encodeLogoName" class="logo-name">No file chosen</span>
+            <button class="btn btn--ghost btn--sm" id="encodeClearLogo">✕</button>
+          </div>
+          <div class="field field--inline">
+            <label for="encodeLogoRatio">Logo size: <span id="encodeLogoRatioVal">22</span>%</label>
+            <input type="range" id="encodeLogoRatio" min="10" max="30" value="22"/>
+          </div>
+        </div>
+        <!-- Badge label -->
+        <div class="field">
+          <label for="encodeBadge">Badge label (PNG only, optional)</label>
+          <input type="text" id="encodeBadge" placeholder="e.g. Scan Me!"/>
+        </div>
+        <!-- JPEG quality -->
+        <div class="field" id="jpegQualityRow" style="display:none">
+          <label for="encodeJpegQ">JPEG quality: <span id="encodeJpegQVal">85</span></label>
+          <input type="range" id="encodeJpegQ" min="10" max="100" value="85"/>
+        </div>
+        <button class="btn btn--primary btn--full" id="encodeBtn">
+          Generate QR Code
+        </button>
+      </div>
+
+      <!-- Right: result -->
+      <div class="card encode-result" id="encodeResultCard" style="display:none">
+        <div class="encode-preview" id="encodePreview"></div>
+        <div class="encode-meta" id="encodeMeta"></div>
+        <div class="encode-actions">
+          <button class="btn btn--secondary" id="encodeDownload">⬇ Download</button>
+          <button class="btn btn--secondary" id="encodeCopyB64" title="Copy base64 / SVG">📋 Copy</button>
+          <button class="btn btn--ghost btn--sm" id="encodeCopyURL" title="If data is a URL, open it">🔗 Open URL</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Decode ─────────────────────────────────────────────────────── -->
+  <section class="tab-panel" id="tab-decode">
+    <div class="panel-grid decode-grid">
+      <!-- Input -->
+      <div class="card">
+        <h3 class="card__title">Input</h3>
+        <!-- Drop zone -->
+        <div class="drop-zone" id="dropZone" tabindex="0">
+          <div class="drop-zone__inner">
+            <svg viewBox="0 0 48 48" class="drop-icon"><path fill="currentColor" d="M24 4C12.95 4 4 12.95 4 24s8.95 20 20 20 20-8.95 20-20S35.05 4 24 4zm-2 28v-8H14l10-12 10 12h-8v8h-4z"/></svg>
+            <p>Drop image here or <label for="decodeFile" class="link">choose file</label></p>
+            <input type="file" id="decodeFile" accept="image/*" class="sr-only"/>
+          </div>
+        </div>
+        <div class="decode-or"><span>or</span></div>
+        <!-- Base64 -->
+        <div class="field">
+          <label for="decodeBase64">Paste base64 image</label>
+          <textarea id="decodeBase64" rows="3" placeholder="data:image/png;base64,… or raw base64…"></textarea>
+        </div>
+        <div class="decode-or"><span>or</span></div>
+        <!-- URL -->
+        <div class="field">
+          <label for="decodeURL">Fetch image from URL</label>
+          <input type="url" id="decodeURL" placeholder="https://example.com/qr.png"/>
+        </div>
+        <div class="decode-or"><span>or</span></div>
+        <!-- Camera -->
+        <div class="field">
+          <button class="btn btn--secondary btn--full" id="cameraBtn">📷 Scan with Camera</button>
+          <video id="cameraVideo" style="display:none;width:100%;border-radius:8px;margin-top:8px" autoplay playsinline></video>
+          <canvas id="cameraCanvas" style="display:none"></canvas>
+          <button class="btn btn--ghost btn--sm" id="cameraStopBtn" style="display:none;margin-top:6px">Stop Camera</button>
+        </div>
+        <button class="btn btn--primary btn--full" id="decodeBtn" style="margin-top:8px">Decode QR</button>
+      </div>
+
+      <!-- Result -->
+      <div class="card" id="decodeResultCard" style="display:none">
+        <h3 class="card__title">Result</h3>
+        <div class="decode-format" id="decodeFormat"></div>
+        <pre class="decode-text" id="decodeText"></pre>
+        <div class="decode-actions">
+          <button class="btn btn--secondary btn--sm" id="decodeCopy">📋 Copy</button>
+          <button class="btn btn--ghost btn--sm"     id="decodeOpenURL" style="display:none">🔗 Open URL</button>
+          <button class="btn btn--ghost btn--sm"     id="decodeEncodeBack">↩ Re-encode</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Batch ──────────────────────────────────────────────────────── -->
+  <section class="tab-panel" id="tab-batch">
+    <div class="panel-grid batch-grid">
+      <div class="card">
+        <h3 class="card__title">Batch Encode  <span class="badge">max 200</span></h3>
+        <div class="field">
+          <label for="batchData">One item per line (or CSV: data,badge_label)</label>
+          <textarea id="batchData" rows="8" placeholder="https://example.com&#10;Hello World&#10;foo@bar.com"></textarea>
+        </div>
+        <div class="row-3">
+          <div class="field">
+            <label for="batchFormat">Format</label>
+            <select id="batchFormat">
+              <option value="png" selected>PNG</option>
+              <option value="jpeg">JPEG</option>
+              <option value="webp">WebP</option>
+              <option value="svg">SVG</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="batchEC">EC Level</label>
+            <select id="batchEC">
               <option value="L">L</option>
               <option value="M" selected>M</option>
               <option value="Q">Q</option>
               <option value="H">H</option>
             </select>
           </div>
-        </div>
-
-        <button class="btn btn--primary" id="batchBtn" style="margin-top:1rem;">
-          Generate All
-        </button>
-        <div class="batch-results" id="batchResults"></div>
-      </div>
-    </section>
-
-    <!-- TAB: HISTORY -->
-    <section class="tab-panel" id="tab-history">
-      <div class="card">
-        <div class="card-header-row">
-          <h2 class="card-title">Operation History</h2>
-          <button class="btn btn--ghost btn--sm" id="clearHistoryBtn">Clear all</button>
-        </div>
-        <div class="history-list" id="historyList">
-          <div class="qr-placeholder">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="placeholder-icon"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <p>No operations yet</p>
+          <div class="field">
+            <label for="batchStyle">Style</label>
+            <select id="batchStyle">
+              <option value="square" selected>Square</option>
+              <option value="dot">Dot</option>
+              <option value="rounded">Rounded</option>
+            </select>
           </div>
         </div>
+        <div class="row-2">
+          <button class="btn btn--primary" id="batchEncodeBtn">⚡ Generate All</button>
+          <button class="btn btn--secondary" id="batchExportBtn">📦 Export ZIP</button>
+        </div>
+        <div class="progress-bar" id="batchProgress" style="display:none">
+          <div class="progress-bar__fill" id="batchProgressFill"></div>
+        </div>
       </div>
-    </section>
-  </main>
+      <div class="batch-results" id="batchResults"></div>
+    </div>
+  </section>
 
-  <!-- Toast notifications -->
-  <div class="toast-container" id="toastContainer"></div>
+  <!-- ── Payload Builder ─────────────────────────────────────────────── -->
+  <section class="tab-panel" id="tab-payload">
+    <div class="panel-grid payload-grid">
+      <div class="card">
+        <h3 class="card__title">Payload Builder</h3>
+        <div class="field">
+          <label for="payloadType">Type</label>
+          <select id="payloadType">
+            <option value="wifi">📶 WiFi Network</option>
+            <option value="vcard">👤 vCard Contact</option>
+            <option value="sms">💬 SMS Message</option>
+            <option value="email">✉️ Email</option>
+            <option value="geo">📍 Geolocation</option>
+            <option value="phone">📞 Phone Number</option>
+            <option value="url">🔗 URL / Link</option>
+            <option value="text">📝 Plain Text</option>
+            <option value="cal_event">📅 Calendar Event</option>
+            <option value="bitcoin">₿ Bitcoin Payment</option>
+          </select>
+        </div>
+        <!-- Dynamic form: injected by JS -->
+        <div id="payloadForm"></div>
+        <div class="row-2" style="margin-top:12px">
+          <button class="btn btn--secondary" id="payloadPreviewBtn">Preview Text</button>
+          <button class="btn btn--primary"   id="payloadEncodeBtn">Generate QR</button>
+        </div>
+        <div class="field" id="payloadPreviewBox" style="display:none">
+          <label>Payload string</label>
+          <textarea id="payloadPreviewText" rows="3" readonly></textarea>
+        </div>
+      </div>
+      <div class="card" id="payloadResultCard" style="display:none">
+        <div class="encode-preview" id="payloadPreview"></div>
+        <div class="encode-meta" id="payloadMeta"></div>
+        <div class="encode-actions">
+          <button class="btn btn--secondary" id="payloadDownload">⬇ Download</button>
+          <button class="btn btn--secondary" id="payloadCopy">📋 Copy</button>
+        </div>
+      </div>
+    </div>
+  </section>
 
-  <!-- Loading overlay -->
-  <div class="loading-overlay" id="loadingOverlay" style="display:none;">
-    <div class="spinner"></div>
-  </div>
+  <!-- ── History ─────────────────────────────────────────────────────── -->
+  <section class="tab-panel" id="tab-history">
+    <div class="history-header">
+      <div class="field field--inline">
+        <input type="search" id="histSearch" placeholder="Search history…"/>
+      </div>
+      <div class="history-header__actions">
+        <button class="btn btn--ghost btn--sm" id="histRefresh">↻ Refresh</button>
+        <button class="btn btn--danger btn--sm" id="histClear">🗑 Clear All</button>
+      </div>
+    </div>
+    <div class="history-list" id="historyList"></div>
+    <div class="history-pagination" id="histPagination"></div>
+  </section>
+</main>
 
-  <script src="/js/app.js"></script>
+<!-- ── Loading overlay ─────────────────────────────────────────────────── -->
+<div class="overlay" id="overlay" style="display:none">
+  <div class="spinner"></div>
+</div>
+
+<!-- ── Toast container ─────────────────────────────────────────────────── -->
+<div class="toast-container" id="toasts"></div>
+
+<script src="/js/app.js"></script>
 </body>
 </html>
